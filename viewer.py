@@ -1,6 +1,7 @@
 import requests 
 import os
 import json
+import math
 
 #python CLI for zendesk coding challenge
 #python CLI displays tickets for user
@@ -19,15 +20,62 @@ elif (response.status_code == 401):
 
 #create dictionary from returned json
 json_data = json.loads(response.text)
-print(len(json_data))
+#print(len(json_data))
 data = response.json().get("tickets")
-print("data test \n")
-print(len(data))
+#print("data test \n")
+#print(len(data))
 
-for key in json_data["tickets"]:
-    print(key)
-    #print(json_data[key])
-    print("test\n")
+#used to track page number
+page = 1
+max_pages = 0
+
+if(len(data)%25 == 0):
+    max_pages = len(data)/25
+else:
+    max_pages = math.floor(len(data)/25) + 1
+
+#message to user about number of tickets
+print("There are %d tickets pulled and %d pages\n"%(len(data), max_pages))
+
+#start loop to process user input
+ans = "start"
+
+while(ans != "quit"):
+    #prompt user for input
+    print("\n   Select view options:\n")
+    print("         Type: {page #} to view ticktes of specified page\n")
+    print("         Type: {ticket #} to view specific ticket\n")
+    print("         Type 'quit' to quit\n")
+    ans = raw_input("Selection: \n")
+    holder = ans.strip().split(" ")
+
+    if(holder[0].lower() == "page"):
+        if(int(holder[1])<=max_pages and int(holder[1])>0):
+            #display page
+            page = int(holder[1])
+            for x in range((page-1)*25, ((page-1)*25)+24):
+                print(data[x])
+            print("Page %d of %d\n"%(page, max_pages))
+        else:
+            print("Please enter valid page number\n")
+            continue
+    elif(holder[0].lower() =="ticket"):
+        if(int(holder[1])<=len(data) and int(holder[1])>0):
+            #display ticket
+            print(data[int(holder[1])])
+            print("Ticket %s of %d\n"%(holder[1], len(data)))
+        else:
+            print("Please enter valid ticket number\n")
+            continue
+
+
+
+
+
+# for key in json_data["tickets"]:
+#     print(key)
+#     #print(json_data[key])
+#     print("test\n")
 
 # for ticket in data:
 #     print(ticket)
